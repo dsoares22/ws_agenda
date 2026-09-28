@@ -1,0 +1,16 @@
+# Credenciais e configuracoes locais
+.env
+.env.*
+*.local
+.npmrc
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencias e logs locais
+node_modules/
+logs/
+*.log
