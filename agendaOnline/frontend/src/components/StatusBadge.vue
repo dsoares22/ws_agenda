@@ -1,20 +1,27 @@
 <template>
-  <span class="badge" :class="classe">{{ status }}</span>
+  <span class="status" :class="status?.toLowerCase()">● {{ status }}</span>
 </template>
-
 <script setup>
-import { computed } from 'vue'
-const props = defineProps({ status: String })
-const classe = computed(() => ({
-  agendado:  props.status === 'Agendado',
-  concluido: props.status === 'Concluído',
-  cancelado: props.status === 'Cancelado'
-}))
+defineProps({ status: String });
 </script>
-
 <style scoped>
-.badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-.agendado  { background: #e3f2fd; color: #1565c0; }
-.concluido { background: #e8f5e9; color: #2e7d32; }
-.cancelado { background: #ffebee; color: #c62828; }
+.status {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.agendado {
+  background: #fff2dc;
+  color: #a57525;
+}
+.concluído {
+  background: #e5f4e8;
+  color: #34704a;
+}
+.cancelado {
+  background: #ffebe8;
+  color: #a4493a;
+}
 </style>

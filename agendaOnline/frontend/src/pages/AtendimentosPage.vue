@@ -1,240 +1,312 @@
 <template>
-  <div>
-    <div class="page-header">
-      <h1 class="page-title">
-        Atendimentos
-      </h1>
-
-  <RouterLink
-    to="/atendimentos/novo"
-    class="btn btn-primary"
-  >
-    + Novo Atendimento
-  </RouterLink>
-</div>
-
-<div
-  v-if="carregando"
-  class="loading"
->
-  Carregando...
-</div>
-
-<div
-  v-else-if="lista.length === 0"
-  class="vazio"
->
-  Nenhum atendimento cadastrado.
-</div>
-
-<div
-  v-else
-  class="tabela-wrap"
->
-  <table>
-    <thead>
-      <tr>
-        <th>Cliente</th>
-        <th>Telefone</th>
-        <th>Data</th>
-        <th>Horário</th>
-        <th>Responsável</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr
-        v-for="a in lista"
-        :key="a.id"
+  <div class="appointments">
+    <div class="top">
+      <div>
+        <p class="page-kicker">AGENDA DA WS</p>
+        <h1 class="page-title">Atendimentos</h1>
+        <p class="page-subtitle">
+          Visualize e gerencie todos os seus compromissos.
+        </p>
+      </div>
+      <RouterLink to="/atendimentos/novo" class="btn btn-primary"
+        >＋ Novo atendimento</RouterLink
       >
-        <td>{{ a.nome_cliente }}</td>
-
-        <td>{{ a.telefone }}</td>
-
-        <td>{{ formatarData(a.data) }}</td>
-
-        <td>{{ a.horario }}</td>
-
-        <td>{{ a.responsaveis?.nome }}</td>
-
-        <td>
-          <StatusBadge :status="a.status" />
-        </td>
-
-        <td class="acoes">
-          <RouterLink
-            :to="`/atendimentos/${a.id}`"
-            class="btn btn-sm"
-          >
-            Editar
-          </RouterLink>
-
-          <button
-            class="btn btn-sm btn-danger"
-            @click="excluir(a.id)"
-          >
-            Excluir
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    </div>
+    <div class="toolbar">
+      <div class="search">
+        <span>⌕</span
+        ><input
+          v-model="busca"
+          type="search"
+          placeholder="Buscar por cliente ou responsável..."
+          aria-label="Buscar atendimentos"
+        />
+      </div>
+      <select v-model="filtro" aria-label="Filtrar por status">
+        <option value="">Todos os status</option>
+        <option>Agendado</option>
+        <option>Concluído</option>
+        <option>Cancelado</option></select
+      ><span class="count"
+        >{{ filtrados.length }}
+        {{ filtrados.length === 1 ? "atendimento" : "atendimentos" }}</span
+      >
+    </div>
+    <div v-if="carregando" class="feedback" role="status">
+      Carregando atendimentos...
+    </div>
+    <div v-else-if="erro" class="feedback error" role="alert">
+      {{ erro }} <button @click="carregar">Tentar novamente</button>
+    </div>
+    <div v-else-if="filtrados.length === 0" class="feedback">
+      <span class="empty-icon">▦</span
+      ><strong>Nenhum atendimento encontrado</strong>
+      <p>
+        {{
+          lista.length
+            ? "Tente mudar os filtros de busca."
+            : "Comece cadastrando o primeiro atendimento."
+        }}
+      </p>
+      <RouterLink v-if="!lista.length" to="/atendimentos/novo"
+        >Cadastrar atendimento →</RouterLink
+      >
+    </div>
+    <div v-else class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>CLIENTE</th>
+            <th>DATA E HORÁRIO</th>
+            <th>RESPONSÁVEL</th>
+            <th>STATUS</th>
+            <th><span class="sr-only">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="a in filtrados" :key="a.id">
+            <td>
+              <strong>{{ a.nome_cliente }}</strong
+              ><small>{{ a.telefone }}</small>
+            </td>
+            <td>
+              <strong>{{ formatarData(a.data) }}</strong
+              ><small>{{ a.horario?.slice(0, 5) }}</small>
+            </td>
+            <td>{{ a.responsaveis?.nome || "—" }}</td>
+            <td><StatusBadge :status="a.status" /></td>
+            <td class="actions">
+              <RouterLink :to="`/atendimentos/${a.id}`">Editar</RouterLink
+              ><button @click="excluir(a.id)">Excluir</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { atendimentos } from '../services/api'
-import StatusBadge from '../components/StatusBadge.vue'
-
-const lista = ref([])
-const carregando = ref(true)
-
-onMounted(async () => {
-  const res = await atendimentos.listar()
-
-  lista.value = res.data
-
-  carregando.value = false
-})
-
+import { ref, computed, onMounted } from "vue";
+import { atendimentos } from "../services/api";
+import StatusBadge from "../components/StatusBadge.vue";
+const lista = ref([]),
+  carregando = ref(true),
+  erro = ref(""),
+  busca = ref(""),
+  filtro = ref("");
+const filtrados = computed(() =>
+  lista.value.filter(
+    (a) =>
+      (!filtro.value || a.status === filtro.value) &&
+      `${a.nome_cliente} ${a.responsaveis?.nome || ""}`
+        .toLocaleLowerCase("pt-BR")
+        .includes(busca.value.toLocaleLowerCase("pt-BR")),
+  ),
+);
+async function carregar() {
+  carregando.value = true;
+  erro.value = "";
+  try {
+    lista.value = (await atendimentos.listar()).data;
+  } catch {
+    erro.value = "Não foi possível carregar os atendimentos.";
+  } finally {
+    carregando.value = false;
+  }
+}
 function formatarData(data) {
-  if (!data) return ''
-
-  const [ano, mes, dia] = data.split('-')
-
-  return `${dia}/${mes}/${ano}`
+  if (!data) return "";
+  const [ano, mes, dia] = data.split("-");
+  return `${dia}/${mes}/${ano}`;
 }
-
 async function excluir(id) {
-  if (!confirm('Deseja excluir este atendimento?')) return
-
-  await atendimentos.remover(id)
-
-  lista.value = lista.value.filter(
-    a => a.id !== id
-  )
+  if (!confirm("Deseja excluir este atendimento?")) return;
+  try {
+    await atendimentos.remover(id);
+    lista.value = lista.value.filter((a) => a.id !== id);
+  } catch {
+    erro.value = "Não foi possível excluir o atendimento.";
+  }
 }
+onMounted(carregar);
 </script>
 
 <style scoped>
-.page-header {
+.top {
   display: flex;
+  align-items: end;
   justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.top .btn {
+  padding: 12px 18px;
+  font-weight: 800;
+  font-size: 13px;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+.toolbar {
+  display: flex;
+  gap: 12px;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 18px;
 }
-
-.page-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #4A2812;
+.search {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  background: #fffefa;
+  border: 1px solid #e9e0d6;
+  border-radius: 10px;
+  padding: 0 14px;
 }
-
-.loading,
-.vazio {
-  text-align: center;
-  padding: 2rem;
-  color: #777;
+.search span {
+  color: #a58554;
+  font-size: 25px;
+  line-height: 1;
 }
-
-.tabela-wrap {
-background: #FCFAF7;
-
-border-radius: 18px;
-
-overflow-x: auto;
-overflow-y: hidden;
-
-box-shadow:
-0 10px 25px rgba(0,0,0,.08);
+.search input {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  font-size: 13px;
 }
-
-
+.toolbar select {
+  background: #fffefa;
+  border: 1px solid #e9e0d6;
+  border-radius: 10px;
+  padding: 12px;
+  color: #5a4737;
+  font-size: 13px;
+}
+.count {
+  color: #94887b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.table-wrap {
+  background: #fffefa;
+  border: 1px solid #eee7de;
+  border-radius: 15px;
+  overflow-x: auto;
+  box-shadow: 0 10px 30px #422b1508;
+}
 table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
 }
-
-th,
-td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
 th {
-  background:
-    linear-gradient(
-      135deg,
-      #6B3A1F,
-      #4A2812
-    );
-
-  color: white;
-  font-weight: 600;
+  padding: 17px 20px;
+  background: #f5f0e8;
+  color: #8f7f6d;
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  font-weight: 800;
 }
-
-tbody tr {
-  transition: .2s;
+td {
+  padding: 20px;
+  border-top: 1px solid #f0eae2;
+  color: #5d5044;
+  font-size: 13px;
 }
-
 tbody tr:hover {
-  background: #faf7f3;
+  background: #fdfaf5;
 }
-
-.acoes {
+td strong,
+td small {
+  display: block;
+}
+td strong {
+  color: #433023;
+  font-weight: 800;
+}
+td small {
+  color: #9d9185;
+  margin-top: 3px;
+}
+.actions {
+  white-space: nowrap;
+  text-align: right;
+}
+.actions a,
+.actions button {
+  border: 0;
+  background: transparent;
+  color: #a77b33;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 7px;
+}
+.actions button {
+  color: #b65243;
+}
+.feedback {
+  min-height: 260px;
+  background: #fffefa;
+  border: 1px solid #eee7de;
+  border-radius: 15px;
   display: flex;
-  gap: .5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #817466;
 }
-
-.btn {
-  display: inline-block;
-
-  padding: .55rem 1rem;
-
-  border-radius: 8px;
-
-  text-decoration: none;
-
-  font-weight: 600;
-
-  border: none;
-
-  cursor: pointer;
+.feedback strong {
+  color: #442d1d;
+  font-size: 18px;
 }
-
-.btn-primary {
-  background:
-    linear-gradient(
-      135deg,
-      #C9A03D,
-      #DAB45F
-    );
-
-  color: #4A2812;
+.feedback p {
+  margin-top: 6px;
 }
-
-.btn-primary:hover {
-  opacity: .95;
+.feedback a,
+.feedback button {
+  color: #a77b33;
+  border: 0;
+  background: transparent;
+  font-weight: 800;
 }
-
-.btn-sm {
-  background: #f3eee8;
-  color: #4A2812;
+.feedback.error {
+  color: #ad3e2f;
 }
-
-.btn-danger {
-  background: #fdeaea;
-  color: #c62828;
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  background: #f7ebd3;
+  border-radius: 16px;
+  font-size: 30px;
+  color: #ac7e33;
+  margin-bottom: 15px;
 }
-.atendimentos-page {
-min-height: 100vh;
-background: #F8F6F3;
-padding: 1rem;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
 }
-
+@media (max-width: 650px) {
+  .top {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .top .btn {
+    align-self: flex-start;
+  }
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  .search {
+    min-width: 100%;
+  }
+  .count {
+    margin-left: auto;
+  }
+}
 </style>
