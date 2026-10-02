@@ -1,5 +1,3 @@
-
-
 # 📅 WS Agenda Online
 
 Sistema web de agendamento de atendimentos desenvolvido para a disciplina de **Programação Web**.
@@ -15,27 +13,30 @@ O **WS Agenda Online** é um sistema de gerenciamento de atendimentos para a emp
 ## 🛠️ Tecnologias Utilizadas
 
 ### Front-end
-| Tecnologia | Versão | Descrição |
-|---|---|---|
-| Vue.js | 3.x | Framework JavaScript progressivo |
-| Vue Router | 5.x | Roteamento de páginas (SPA) |
-| Pinia | 3.x | Gerenciamento de estado (autenticação) |
-| Axios | 1.x | Requisições HTTP para a API |
-| Bootstrap | 5.x | Estilização e componentes visuais |
-| Vite | 8.x | Bundler e servidor de desenvolvimento |
+
+| Tecnologia | Versão | Descrição                              |
+| ---------- | ------ | -------------------------------------- |
+| Vue.js     | 3.x    | Framework JavaScript progressivo       |
+| Vue Router | 5.x    | Roteamento de páginas (SPA)            |
+| Pinia      | 3.x    | Gerenciamento de estado (autenticação) |
+| Axios      | 1.x    | Requisições HTTP para a API            |
+| Bootstrap  | 5.x    | Estilização e componentes visuais      |
+| Vite       | 8.x    | Bundler e servidor de desenvolvimento  |
 
 ### Back-end
-| Tecnologia | Versão | Descrição |
-|---|---|---|
-| Node.js | 20+ | Ambiente de execução JavaScript |
-| Express | 4.x | Framework para criação da API REST |
-| Supabase JS | 2.x | Cliente para banco de dados e autenticação |
-| dotenv | 16.x | Gerenciamento de variáveis de ambiente |
-| nodemon | 3.x | Reinicialização automática em desenvolvimento |
+
+| Tecnologia  | Versão | Descrição                                     |
+| ----------- | ------ | --------------------------------------------- |
+| Node.js     | 20+    | Ambiente de execução JavaScript               |
+| Express     | 4.x    | Framework para criação da API REST            |
+| Supabase JS | 2.x    | Cliente para banco de dados e autenticação    |
+| dotenv      | 16.x   | Gerenciamento de variáveis de ambiente        |
+| nodemon     | 3.x    | Reinicialização automática em desenvolvimento |
 
 ### Banco de Dados
-| Tecnologia | Descrição |
-|---|---|
+
+| Tecnologia            | Descrição                                                     |
+| --------------------- | ------------------------------------------------------------- |
 | Supabase (PostgreSQL) | Banco de dados relacional na nuvem com autenticação integrada |
 
 ---
@@ -56,24 +57,26 @@ O **WS Agenda Online** é um sistema de gerenciamento de atendimentos para a emp
 ## 🗄️ Estrutura do Banco de Dados
 
 ### Tabela `responsaveis`
-| Campo | Tipo | Descrição |
-|---|---|---|
-| id | uuid | Chave primária |
-| nome | text | Nome do responsável |
-| tipo | text | Tipo (ex: Corretora, Colaboradora) |
+
+| Campo | Tipo | Descrição                          |
+| ----- | ---- | ---------------------------------- |
+| id    | uuid | Chave primária                     |
+| nome  | text | Nome do responsável                |
+| tipo  | text | Tipo (ex: Corretora, Colaboradora) |
 
 ### Tabela `atendimentos`
-| Campo | Tipo | Descrição |
-|---|---|---|
-| id | uuid | Chave primária |
-| nome_cliente | text | Nome do cliente |
-| telefone | text | Telefone de contato |
-| endereco_visita | text | Endereço da visita |
-| data | date | Data do atendimento |
-| horario | time | Horário do atendimento |
-| responsavel_id | uuid | FK para responsaveis |
-| status | text | Agendado / Concluído / Cancelado |
-| observacoes | text | Observações opcionais |
+
+| Campo           | Tipo | Descrição                        |
+| --------------- | ---- | -------------------------------- |
+| id              | uuid | Chave primária                   |
+| nome_cliente    | text | Nome do cliente                  |
+| telefone        | text | Telefone de contato              |
+| endereco_visita | text | Endereço da visita               |
+| data            | date | Data do atendimento              |
+| horario         | time | Horário do atendimento           |
+| responsavel_id  | uuid | FK para responsaveis             |
+| status          | text | Agendado / Concluído / Cancelado |
+| observacoes     | text | Observações opcionais            |
 
 ### Tabela `clientes`
 
@@ -85,8 +88,8 @@ O **WS Agenda Online** é um sistema de gerenciamento de atendimentos para a emp
 | endereco   | text      | Endereço do cliente |
 | created_at | timestamp | Data de criação     |
 
-
 ### View `dashboard_indicadores`
+
 View SQL no Supabase que calcula os totais exibidos no dashboard.
 
 ---
@@ -199,6 +202,7 @@ O sistema estará disponível em `http://localhost:5173`
 ---
 
 ## 🖥️ Telas do Sistema
+
 ### 🔐LOGIN
 
 <img width="2142" height="1845" alt="Captura de Tela 2026-06-08 às 02 17 18" src="https://github.com/user-attachments/assets/8c6eb732-adfd-4825-9057-00c4e9eedb59" />
@@ -231,25 +235,22 @@ O sistema estará disponível em `http://localhost:5173`
 
 ## 👨‍💻 Integrantes da Equipe
 
-| Nome | GitHub |
-|---|---|
-| Davi Silva Soares | [@dvsxx11](https://github.com/dvsxx11) |
+| Nome                    | GitHub                                                           |
+| ----------------------- | ---------------------------------------------------------------- |
+| Davi Silva Soares       | [@dsoares22](https://github.com/dsoares22)                       |
 | João Pedro Lima Barbosa | [@JoaoPedroLimaBarbosa](https://github.com/JoaoPedroLimaBarbosa) |
 
 ---
 
 ## 📌 Endpoints da API
 
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | `/` | Status da API |
-| GET | `/atendimentos` | Lista todos os atendimentos |
-| GET | `/atendimentos/dashboard` | Indicadores do dashboard |
-| GET | `/atendimentos/:id` | Busca atendimento por ID |
-| POST | `/atendimentos` | Cria novo atendimento |
-| PUT | `/atendimentos/:id` | Atualiza atendimento |
-| DELETE | `/atendimentos/:id` | Remove atendimento |
-| GET | `/responsaveis` | Lista todos os responsáveis |
-
-
-
+| Método | Rota                      | Descrição                   |
+| ------ | ------------------------- | --------------------------- |
+| GET    | `/`                       | Status da API               |
+| GET    | `/atendimentos`           | Lista todos os atendimentos |
+| GET    | `/atendimentos/dashboard` | Indicadores do dashboard    |
+| GET    | `/atendimentos/:id`       | Busca atendimento por ID    |
+| POST   | `/atendimentos`           | Cria novo atendimento       |
+| PUT    | `/atendimentos/:id`       | Atualiza atendimento        |
+| DELETE | `/atendimentos/:id`       | Remove atendimento          |
+| GET    | `/responsaveis`           | Lista todos os responsáveis |

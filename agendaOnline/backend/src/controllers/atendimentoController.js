@@ -134,7 +134,9 @@ export async function atualizar(req, res) {
   }
 
   if (typeof data !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-    return res.status(400).json({ erro: "O ano da data deve ter quatro dígitos." });
+    return res
+      .status(400)
+      .json({ erro: "O ano da data deve ter quatro dígitos." });
   }
 
   const { data: atualizado, error } = await supabase
